@@ -99,7 +99,7 @@ void dostuff (int sock)
   char file_name[256];
   char *token;
   char *str = "successfully connect  but fail to find/open the request file";
-  char *reply = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+  //char *reply = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
      
   bzero(buffer,256);
   n = read(sock,buffer,255);
@@ -120,39 +120,20 @@ void dostuff (int sock)
 
   else{
 
+    char buff[265];
+    //write(sock, reply, strlen(reply));
+   
+// //printf("Thhis is the file name: %s",file_name);
 
-    write(sock, reply, strlen(reply));
-    char buff[2014];
+//     while( fgets(buff, 2014, fp)){
+//       //printf("%s",buff);
+//             write(sock,buff,strlen(buff)); 
+//     }
 
-    while( fgets(buff, 2014, fp)){
-      //printf("%s",buff);
-      write(sock,buff,strlen(buff)); 
-    }
+    while(fread(buff,1,265,fp)){
+      write(sock,buff,sizeof(buff));  //use sizeof(buff) rather than strlen(buff)
+      }
 
-
-   fclose(fp);
-
-
-
-    // while(1){
-    //   /* First read file in chunks of 256 bytes */
-    //   unsigned char buff[20]={0};
-    //   int nread = fread(buff,20,1,fp);
-
-    //    //If read was success, send data. 
-    //   if(nread > 0){
-
-
-    //     //write(sock, buff, strlen(buff));
-    //     printf("%s",buff);
-        
-
-    //   }
-
-    //   if (nread < 256){
-    //     break;
-    //   }
-    // }
   }
  
   //n = write(sock,"I got your message",18);
