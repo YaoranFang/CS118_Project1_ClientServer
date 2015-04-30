@@ -93,8 +93,12 @@ void dostuff (int sock)
   char name[256];
   char file_name[256];
   char *token;
+  char *filetype;
   char *str = "successfully connect  but fail to find/open the request file";
-  char *reply = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+  char *html_reply = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+  char *jpg_reply = "HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\n\r\n";
+  char *gif_reply = "HTTP/1.1 200 OK\r\nContent-Type: image/gif\r\n\r\n";
+  
   char extra[1000];
      
   //read
@@ -118,6 +122,10 @@ void dostuff (int sock)
   token = strtok(NULL, " /"); 
   strcpy(file_name, token);
 
+  //parse for file type
+  filetype = strtok(token, ".");
+  filetype = strtok(NULL, ".");
+
   //open and read from file, then write
   FILE *fp = fopen(file_name,"r");
 
@@ -126,9 +134,16 @@ void dostuff (int sock)
   } 
 
   else{
-    char buff[265];
-    write(sock, reply, strlen(reply));
+    //specify content type
+    if (!strcmp(filetype, "html"))
+        write(sock, html_reply, strlen(html_reply));
+    else if (!strcmp(filetype, "jpg"))
+        write(sock, jpg_reply, strlen(jpg_reply));
+    else if (!strcmp(filetype, "gif"))
+        write(sock, gif_reply, strlen(gif_reply));
 
+    //send file to client
+    char buff[265];
     while(fread(buff,1,265,fp)){
       write(sock,buff,sizeof(buff));  //use sizeof(buff) rather than strlen(buff)
       }
