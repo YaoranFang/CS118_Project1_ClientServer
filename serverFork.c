@@ -8,7 +8,7 @@
 #include <sys/socket.h>  // definitions of structures needed for sockets, e.g. sockaddr
 #include <netinet/in.h>  // constants and structures needed for internet domain addresses, e.g. sockaddr_in
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 #include <sys/wait.h>	/* for the waitpid() system call */
 #include <signal.h>	/* signal name macros, and the kill() prototype */
 
@@ -33,11 +33,6 @@ int main(int argc, char *argv[])
      struct sockaddr_in serv_addr, cli_addr;
      struct sigaction sa;          // for signal SIGCHLD
 
-     // User do not need provide port number
-     // if (argc < 2) {
-     //     fprintf(stderr,"ERROR, no port provided\n");
-     //     exit(1);
-     // }
      sockfd = socket(AF_INET, SOCK_STREAM, 0);
      if (sockfd < 0) 
         error("ERROR opening socket");
@@ -99,59 +94,44 @@ void dostuff (int sock)
   char file_name[256];
   char *token;
   char *str = "successfully connect  but fail to find/open the request file";
-  //char *reply = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+  char *reply = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+  char extra[1000];
      
+  //read
   bzero(buffer,256);
   n = read(sock,buffer,255);
   if (n < 0) error("ERROR reading from socket");
+
+  //make sure client delivers whole message before writing
+  if (n == 255){
+    while(read(sock,extra,1000) == 1000){
+      continue;
+    }
+  }
+
+  //output buffer
   printf("Here is the message:\n%s\n",buffer);
   strcpy(name, buffer);
+
+  //parse for filename
   token = strtok(name, " /"); /* get the first token */
   token = strtok(NULL, " /"); 
-  //token = strtok(NULL, s); /* get the filename */
-  //printf("Again: %s\n", token);
   strcpy(file_name, token);
+
+  //open and read from file, then write
   FILE *fp = fopen(file_name,"r");
 
   if(fp==NULL){
     write(sock,str,strlen(str)); 
- 
   } 
 
   else{
-
     char buff[265];
-    //write(sock, reply, strlen(reply));
-   
-// //printf("Thhis is the file name: %s",file_name);
-
-//     while( fgets(buff, 2014, fp)){
-//       //printf("%s",buff);
-//             write(sock,buff,strlen(buff)); 
-//     }
+    write(sock, reply, strlen(reply));
 
     while(fread(buff,1,265,fp)){
       write(sock,buff,sizeof(buff));  //use sizeof(buff) rather than strlen(buff)
       }
-
+    fclose(fp);
   }
- 
-  //n = write(sock,"I got your message",18);
-  //if (n < 0) error("ERROR writing to socket");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
