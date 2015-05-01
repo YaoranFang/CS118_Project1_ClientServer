@@ -23,3 +23,5 @@ To compile the source code, we call `make` in the terminal. Then to run it, we c
 *Include and briefly explain some sample outputs of your client-server.
 
 We had multiple files that the client could ask for: test.html, test.jpg, and test.gif. We made sure that test.html was able to work with various font styles and an image in the code. In our testing, the correct format was output when the browser called 'localhost:50000/test.html'. It was also important to test that the client was able to ask for pictures as well. Both 'localhost:50000/test.jpg' and 'localhost:50000/test.gif' were able to display the proper images.
+
+To test for large files, we have the 3MB picture 'large.jpg' which displays correctly with 'localhost:50000/large.jpg'.
