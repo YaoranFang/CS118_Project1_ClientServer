@@ -33,15 +33,17 @@ int main(int argc, char *argv[])
      struct sockaddr_in serv_addr, cli_addr;
      struct sigaction sa;          // for signal SIGCHLD
 
+     //create socket
      sockfd = socket(AF_INET, SOCK_STREAM, 0);
      if (sockfd < 0) 
         error("ERROR opening socket");
+
      bzero((char *) &serv_addr, sizeof(serv_addr));
-     // portno = atoi(argv[1]);
      serv_addr.sin_family = AF_INET;
      serv_addr.sin_addr.s_addr = INADDR_ANY;
      serv_addr.sin_port = htons(portno);
      
+     //assign address to socket
      if (bind(sockfd, (struct sockaddr *) &serv_addr,
               sizeof(serv_addr)) < 0) 
               error("ERROR on binding");
@@ -61,12 +63,14 @@ int main(int argc, char *argv[])
      /*********************************/
      
      while (1) {
+	 //take first request
          newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
          
          if (newsockfd < 0) 
              error("ERROR on accept");
          
-         pid = fork(); //create a new process
+	 //create new process to "dostuff" with accepted client
+         pid = fork();
          if (pid < 0)
              error("ERROR on fork");
          
@@ -101,7 +105,7 @@ void dostuff (int sock)
   
   char extra[1000];
      
-  //read
+  //read client's message
   bzero(buffer,256);
   n = read(sock,buffer,255);
   if (n < 0) error("ERROR reading from socket");
@@ -113,7 +117,7 @@ void dostuff (int sock)
     }
   }
 
-  //output buffer
+  //output buffer in terminal
   printf("Here is the message:\n%s\n",buffer);
   strcpy(name, buffer);
 
@@ -134,7 +138,7 @@ void dostuff (int sock)
   } 
 
   else{
-    //specify content type
+    //specify content type to client
     if (!strcmp(filetype, "html"))
         write(sock, html_reply, strlen(html_reply));
     else if (!strcmp(filetype, "jpg"))

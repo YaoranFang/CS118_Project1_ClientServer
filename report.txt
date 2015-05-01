@@ -1,0 +1,25 @@
+*Give a high-level description of your server's design
+
+First, we create a socket that we can use between for our server to wait for client requests, and we assign it an address with bind() and the port number 50000.
+
+Once everything is set up, the server waits for requests then deals with each connection request.
+
+To deal with the message the client sent, we have the function dostuff(). dostuff() first reads the clients message, outputs the message in the terminal, then extracts the filename and filetype of the client's request. The server then sends the file to the client.
+
+The server continues to wait for connection requests until the shell running the program calls for an interrupt.
+
+*What difficulties did you face and how did you solve them?
+We used most of the code given in the workspaces folder, so the most difficult part was parsing the message sent to the server.
+
+-displaying image
+-understanging function parameters?
+
+We also had the problem that the browser immediately said that the server was reconnected. It was displayed as an error instead of showing the file. To understand what was going on, we searched online and found the problem. The server might not be allowing the client to finish sending its request before writing to it. So we put in a loop that read from the client until all the information was given.
+
+*manual in the report, explain how to compile and run your source code
+
+To compile the source code, we call `make` in the terminal. Then to run it, we call `./serverFork`.
+
+*Include and briefly explain some sample outputs of your client-server.
+
+We had multiple files that the client could ask for: test.html, test.jpg, and test.gif. We made sure that test.html was able to work with various font styles and an image in the code. In our testing, the correct format was output when the browser called 'localhost:50000/test.html'. It was also important to test that the client was able to ask for pictures as well. Both 'localhost:50000/test.jpg' and 'localhost:50000/test.gif' were able to display the proper images.
