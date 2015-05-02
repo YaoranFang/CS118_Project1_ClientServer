@@ -11,7 +11,7 @@
 #include <string.h>
 #include <sys/wait.h>	/* for the waitpid() system call */
 #include <signal.h>	/* signal name macros, and the kill() prototype */
-
+#include <time.h> 
 
 void sigchld_handler(int s)
 {
@@ -98,10 +98,25 @@ void dostuff (int sock)
   char file_name[256];
   char *token;
   char *filetype;
+  char html_buffer[1024];
+  char jpg_buffer[1024];
+  char gif_buffer[1024];
+  char time_buffer[80];
+  time_t rawtime;
+  struct tm *info;
+
+  time( &rawtime );
+
+  info = localtime( &rawtime );
+  strftime(time_buffer,80,"%a, %d %b %G %T %Z", info);
+  snprintf(html_buffer, 1024, "HTTP/1.1 200 OK\r\nDate: %s\r\nContent-Type: text/html\r\n\r\n",time_buffer);
+  snprintf(jpg_buffer, 1024, "HTTP/1.1 200 OK\r\nDate: %s\r\nContent-Type: image/jpeg\r\n\r\n",time_buffer);
+  snprintf(gif_buffer, 1024, "HTTP/1.1 200 OK\r\nDate: %s\r\nContent-Type: image/gif\r\n\r\n",time_buffer);
+  
   char *str = "successfully connect  but fail to find/open the request file";
-  char *html_reply = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
-  char *jpg_reply = "HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\n\r\n";
-  char *gif_reply = "HTTP/1.1 200 OK\r\nContent-Type: image/gif\r\n\r\n";
+  char *html_reply = html_buffer; 
+  char *jpg_reply = jpg_buffer; 
+  char *gif_reply = gif_buffer;
   
   char extra[1000];
      
@@ -123,7 +138,7 @@ void dostuff (int sock)
 
   //parse for filename
   token = strtok(name, " /"); /* get the first token */
-  token = strtok(NULL, " /"); 
+  token = strtok(NULL, " /"); /* get the second token */
   strcpy(file_name, token);
 
   //parse for file type
@@ -139,18 +154,30 @@ void dostuff (int sock)
 
   else{
     //specify content type to client
-    if (!strcmp(filetype, "html"))
-        write(sock, html_reply, strlen(html_reply));
-    else if (!strcmp(filetype, "jpg"))
-        write(sock, jpg_reply, strlen(jpg_reply));
-    else if (!strcmp(filetype, "gif"))
-        write(sock, gif_reply, strlen(gif_reply));
+    if (!strcmp(filetype, "html")){
+      
+      write(sock, html_reply, strlen(html_reply));
+    }
+    
+        
+    else if (!strcmp(filetype, "jpg")){
+     
+      write(sock, jpg_reply, strlen(jpg_reply));
+      
+    }
+
+    else if (!strcmp(filetype, "gif")){
+      
+      write(sock, gif_reply, strlen(gif_reply));
+      
+    }
 
     //send file to client
     char buff[265];
     while(fread(buff,1,265,fp)){
       write(sock,buff,sizeof(buff));  //use sizeof(buff) rather than strlen(buff)
       }
+      
     fclose(fp);
   }
 }
