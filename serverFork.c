@@ -93,8 +93,8 @@ int main(int argc, char *argv[])
 void dostuff (int sock)
 {
   int n;
-  char buffer[256];
-  char name[256];
+  char buffer[1000];
+  char name[1000];
   char file_name[256];
   char *token;
   char *filetype;
@@ -121,12 +121,12 @@ void dostuff (int sock)
   char extra[1000];
      
   //read client's message
-  bzero(buffer,256);
-  n = read(sock,buffer,255);
+  bzero(buffer,1000);
+  n = read(sock,buffer,1000);
   if (n < 0) error("ERROR reading from socket");
 
   //make sure client delivers whole message before writing
-  if (n == 255){
+  if (n == 1000){
     while(read(sock,extra,1000) == 1000){
       continue;
     }
